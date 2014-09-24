@@ -9,9 +9,9 @@ https://github.com/brianaddicks/PowerShell/blob/master/Sickbeard-SnatchedToWante
 #>
 
 Function New-SickAPIQuery {
-Param ($Server, $Port, $ApiKey, $ssl, $ApiCMD = "sb")
+Param ($Server, $Port, $ApiKey, $ssl = $false, $ApiCMD = "sb")
 
-if ($ssl) {
+if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
     $urlbase = "https://$server`:$Port/api/$ApiKey/"
     # ignore certificate errors
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
