@@ -1,4 +1,5 @@
 ﻿Function New-SickAPIConnection {
+[CmdletBinding()]
 Param ($Server, $Port, $ApiKey, $ssl = $false)
 
 if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
@@ -10,8 +11,9 @@ if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
     }
 else {
     $urlbase = "http://$server`:$Port/api/$ApiKey/"
+    Write-Output $urlbase
     }
 #need to output the $urlbase and be able to pipe it into another function.
-$urlbase 
+
 
 }
