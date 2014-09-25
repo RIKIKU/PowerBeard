@@ -10,10 +10,12 @@ if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::ssl3
     }
 else {
-    $urlbase = "http://$server`:$Port/api/$ApiKey/"
+    [string]$urlbase = "http://$server`:$Port/api/$ApiKey/"
     Write-Output $urlbase
     }
 #need to output the $urlbase and be able to pipe it into another function.
 
 
 }
+
+# New-SickAPIConnection -Server localhost -Port 8081 -ApiKey ab3b1539af60c8d65775081a9fa1485f
