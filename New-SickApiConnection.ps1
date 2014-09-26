@@ -4,11 +4,11 @@ Param (
         [Parameter(Mandatory=$True)]$Server,
         [Parameter(Mandatory=$True)]$Port,
         [Parameter(Mandatory=$True)]$ApiKey,
-        [Parameter(Mandatory=$false)]$ssl = $false,
+        [Parameter(Mandatory=$false)][switch]$ssl,
         [parameter(Mandatory=$false)][switch]$TestConneciton
         )
 
-if(($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
+if($ssl){
     [string]$urlbase = "https://$server`:$Port/api/$ApiKey/"
     # ignore certificate errors
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
