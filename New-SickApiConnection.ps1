@@ -1,20 +1,36 @@
 ﻿Function New-SickAPIConnection {
 [CmdletBinding()]
-Param ($Server, $Port, $ApiKey, $ssl = $false)
+Param (
+        [Parameter(Mandatory=$True)]$Server,
+        [Parameter(Mandatory=$True)]$Port,
+        [Parameter(Mandatory=$True)]$ApiKey,
+        [Parameter(Mandatory=$false)]$ssl = $false,
+        [parameter(Mandatory=$false)][switch]$TestConneciton
+        )
 
-if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
-    $urlbase = "https://$server`:$Port/api/$ApiKey/"
+if(($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
+    [string]$urlbase = "https://$server`:$Port/api/$ApiKey/"
     # ignore certificate errors
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
     [System.Net.ServicePointManager]::Expect100Continue = {$true}
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::ssl3
     }
-else {
+else{
     [string]$urlbase = "http://$server`:$Port/api/$ApiKey/"
-    Write-Output $urlbase
+    }
+if($TestConneciton){
+    $url = $urlbase + "/?cmd=sb"
+
+[net.httpWebRequest] $request  = [net.webRequest]::create($url)
+[net.httpWebResponse] $response = $request.getResponse()
+$responseStream = $response.getResponseStream()
+$sr = new-object IO.StreamReader($responseStream)
+$result = $sr.ReadToEnd()
+ConvertFrom-Json $result | select -Property message, result | fl
     }
 #need to output the $urlbase and be able to pipe it into another function.
-
+else{ Write-Output $urlbase
+    }
 
 }
 
