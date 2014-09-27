@@ -34,4 +34,4 @@ else{ Write-Output $urlbase
 
 }
 
-# New-SickAPIConnection -Server localhost -Port 8081 -ApiKey ab3b1539af60c8d65775081a9fa1485f
+# New-PowerBeardConnection -Server localhost -Port 8081 -ApiKey ab3b1539af60c8d65775081a9fa1485f
