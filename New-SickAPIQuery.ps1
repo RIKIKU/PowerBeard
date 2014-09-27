@@ -8,7 +8,7 @@ a function so it can be used to query a server more easily. His original content
 https://github.com/brianaddicks/PowerShell/blob/master/Sickbeard-SnatchedToWanted.ps1
 #>
 
-Function New-SickAPIQuery {
+Function New-PowerBeardQuery {
 Param ($Server, $Port, $ApiKey, $ssl = $false, $ApiCMD = "sb")
 
 if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {

@@ -1,4 +1,4 @@
-﻿Function New-SickAPIConnection {
+﻿Function New-PowerBeardConnection {
 [CmdletBinding()]
 Param (
         [Parameter(Mandatory=$True)]$Server,

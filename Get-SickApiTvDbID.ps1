@@ -1,4 +1,4 @@
-﻿Function Get-SickApiTvdbID{
+﻿Function Get-PowerBeardTvdbID{
 [CmdletBinding()]
 Param (
     [Parameter(Mandatory=$True,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
