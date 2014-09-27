@@ -29,7 +29,9 @@ $result = $sr.ReadToEnd()
 ConvertFrom-Json $result | select -Property message, result | fl
     }
 #need to output the $urlbase and be able to pipe it into another function.
-else{ Write-Output $urlbase
+else{
+    $CSS = new-object psobject -Property @{ ServerConnectionString="$urlbase"}
+    Write-Output $CSS
     }
 
 }
