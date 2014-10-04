@@ -4,7 +4,10 @@
             [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
 
-    Begin{
+    Begin{ 
+            $sysvars = Get-Variable |
+            select -ExpandProperty Name
+            $sysvars += 'sysvars'
           }
     Process{
         #compile the appropriate URL here.
@@ -22,17 +25,19 @@
                 [array]$shows = $PreprocessInfo.data
                 $tvdbids = ($shows | Get-Member | Where-Object -Property Name -NotMatch 'a|e|i|o|u' | select -Property Name)
                 foreach ($tvdbid in $tvdbids){
-                         $output = ($PreprocessInfo.data."$tvdbid.name")
+                         $output = ($PreprocessInfo.data.$($tvdbid.name)) | select -Property show_name, tvrage_name, tvdbid, tvrage_id, status, next_ep_airdate, quality, paused, network, language, air_by_date, cache
                          Write-Output $output
                         }
                 }
-                #Add-Member -InputObject $showinfo NoteProperty tvdbid $tvdbid -PassThru | Add-Member NoteProperty result success -PassThru |Add-Member NoteProperty tvdbid
+
             else{
-                write-host "else occurred"
-                #Add-Member -InputObject $PreprocessInfo NoteProperty tvdbid $tvdbid -PassThru | select -Property message, result, tvdbid
+                Write-Output $PreprocessInfo | select -Property message, result
                 }
             }
         
     End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name } |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
