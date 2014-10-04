@@ -6,6 +6,9 @@
             )
 
     Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
           }
     Process{
         #compile the appropriate URL here.
@@ -28,5 +31,8 @@
                 }
             }
     End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
