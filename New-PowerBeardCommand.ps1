@@ -9,24 +9,26 @@ https://github.com/brianaddicks/PowerShell/blob/master/Sickbeard-SnatchedToWante
 #>
 
 Function New-PowerBeardCommand {
-Param ($Server, $Port, $ApiKey, $ssl = $false, $ApiCMD = "sb")
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, $ApiCMD = "sb")
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+        }
+    Process{
+        [string]$url = "$($ServerConnectionString)?cmd=$ApiCMD"
 
-if (($ssl -eq $true) -or ($ssl -match 'yes|Yes|y|Y')) {
-    $urlbase = "https://$server`:$Port/api/$ApiKey/"
-    # ignore certificate errors
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    [System.Net.ServicePointManager]::Expect100Continue = {$true}
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::ssl3
-} else {
-    $urlbase = "http://$server`:$Port/api/$ApiKey/"
-}
-
-$url = $urlbase + "/?cmd=" + $ApiCMD
-
-[net.httpWebRequest] $request  = [net.webRequest]::create($url)
-[net.httpWebResponse] $response = $request.getResponse()
-$responseStream = $response.getResponseStream()
-$sr = new-object IO.StreamReader($responseStream)
-$result = $sr.ReadToEnd()
-ConvertFrom-Json $result
+        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
+        [net.httpWebResponse] $response = $request.getResponse()
+        $responseStream = $response.getResponseStream()
+        $sr = new-object IO.StreamReader($responseStream)
+        $result = $sr.ReadToEnd()
+        ConvertFrom-Json $result
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
 }

@@ -145,7 +145,7 @@ Param (
             [string]$urlbase = "http://$server`:$Port/api/$ApiKey/"
             }
         if($TestConneciton){
-            $url = $urlbase + "/?cmd=sb"
+            $url = $urlbase + "?cmd=sb"
 
         [net.httpWebRequest] $request  = [net.webRequest]::create($url)
         [net.httpWebResponse] $response = $request.getResponse()
