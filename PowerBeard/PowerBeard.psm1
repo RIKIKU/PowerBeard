@@ -82,6 +82,40 @@ Function Get-PowerBeardShows{
 }
 
 Function Get-PowerBeardTvdbID{
+    <#
+    .SYNOPSIS
+        When a show name is entered the TVDBID of that show is returned.
+
+        
+    .DESCRIPTION
+        This funciton searches for a showname and returns the tvdbid of those shows. Wild cards can be used.
+        This function may retrun many TVDBIDs.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .PARAMETER  ShowName
+       Enter the name of the show you are looking for here.
+       
+    .PARAMETER  PassThru
+       Use this switch if you want to pass the ServerConnectionString through to the pipeline.
+
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
+        Get-PowerBeardTvdbID -ShowName "South Park"
+
+        In this example, we are looking for the show "South Park" and the TVDBID is returned.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This function is used to retrieve the TVDBID of any show.
+
+    #>
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString,
@@ -120,11 +154,84 @@ Function Get-PowerBeardTvdbID{
 }
 
 Function New-PowerBeardConnection {
+<#
+    .SYNOPSIS
+        Generates the ServerConnectionString which is required for many other PowerBeard Functions
+
+        
+    .DESCRIPTION
+        Helps a user generate a correctly formatted URL string by asking for a set of
+        parameters and passing the info to the pipeline. This funciton can also be used
+        to test the supplied connection info and return a success or error message.
+
+    .PARAMETER  Server
+        Specify the Hostname of the server that you want to connect to.
+
+    .PARAMETER  Port
+       Specify the port number of the server.
+       
+    .PARAMETER  ApiKey
+       Specify the API Key. You can get this information or generate a new API key in
+       the settins on the SickBeard web interface.
+
+    .PARAMETER  ssl
+       Use this switch if you are connecting to a server that uses SSL.
+
+    .PARAMETER  TestConneciton
+       Use this switch if you want to test the connection settings you just entered.
+
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        http://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the server connection string object is generated based on what was entered in the
+        required parameters.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -ssl
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        https://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the connection info is the same as example 1, however, the ssl switch is used so the
+        protocol used is https instead of http.
+
+        
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -TestConneciton
+
+        Output
+        
+
+        message : 
+        result  : success
+
+        In this example, the test connection switch is used and as you can see the connection result is a success.
+        If it were to fail, the result would be "error" and there would be a message displayed as to what the error is.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This command is intended as a precurser to any PowerBeard function.
+
+#>
+
 [CmdletBinding()]
 Param (
-        [Parameter(Mandatory=$True)]$Server,
-        [Parameter(Mandatory=$True)]$Port,
-        [Parameter(Mandatory=$True)]$ApiKey,
+        [Parameter(Mandatory=$True)][string]$Server,
+        [Parameter(Mandatory=$True)][int]$Port,
+        [Parameter(Mandatory=$True)][string]$ApiKey,
         [Parameter(Mandatory=$false)][switch]$ssl,
         [parameter(Mandatory=$false)][switch]$TestConneciton
         )
