@@ -16,13 +16,54 @@
         Also accepts pipeline input from Get-PowerBeardTVDBID
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff |
-         Get-PowerBeardShowInfo -tvdbid 123456
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowInfo -tvdbid 75897
+         
+        
+        air_by_date     : 0
+        airs            : Wednesday 10:00 PM
+        cache           : @{banner=1; poster=1}
+        flatten_folders : 0
+        genre           : {Animation, Comedy}
+        language        : en
+        location        : T:\Media\TV Shows\South Park
+        network         : Comedy Central
+        next_ep_airdate : 2014-10-08
+        paused          : 0
+        quality         : HD720p
+        quality_details : @{archive=System.Object[]; initial=System.Object[]}
+        season_list     : {18, 17, 16, 15...}
+        show_name       : South Park
+        status          : Continuing
+        tvrage_id       : 5266
+        tvrage_name     : South Park
+        tvdbid          : 75897
+        result          : success
 
         In this example we get the show info for a show with the tvdbid of 123456
+
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
-         Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
+        
+        
+        air_by_date     : 0
+        airs            : Wednesday 10:00 PM
+        cache           : @{banner=1; poster=1}
+        flatten_folders : 0
+        genre           : {Animation, Comedy}
+        language        : en
+        location        : T:\Media\TV Shows\South Park
+        network         : Comedy Central
+        next_ep_airdate : 2014-10-08
+        paused          : 0
+        quality         : HD720p
+        quality_details : @{archive=System.Object[]; initial=System.Object[]}
+        season_list     : {18, 17, 16, 15...}
+        show_name       : South Park
+        status          : Continuing
+        tvrage_id       : 5266
+        tvrage_name     : South Park
+        tvdbid          : 75897
+        result          : success
 
         In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
         ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
@@ -83,10 +124,35 @@ Function Get-PowerBeardShows{
         be used here instead.
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
-        Get-PowerBeardShows
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardShows
 
-        In this example we use the function and the list of shows I have is returned.
+        show_name       : Stargate Universe
+        tvrage_name     : Stargate Universe
+        tvdbid          : 83237
+        tvrage_id       : 15343
+        status          : Ended
+        next_ep_airdate : 
+        quality         : HD720p
+        paused          : 0
+        network         : Syfy
+        language        : en
+        air_by_date     : 0
+        cache           : @{banner=1; poster=1}
+
+        show_name       : Warehouse 13
+        tvrage_name     : Warehouse 13
+        tvdbid          : 84676
+        tvrage_id       : 7884
+        status          : Ended
+        next_ep_airdate : 
+        quality         : HD720p
+        paused          : 0
+        network         : Syfy
+        language        : en
+        air_by_date     : 0
+        cache           : @{banner=1; poster=1}
+
+        In this example I use the function and the list of shows I have is returned.
 
 
     .OUTPUTS
@@ -162,8 +228,11 @@ Function Get-PowerBeardTvdbID{
 
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
-        Get-PowerBeardTvdbID -ShowName "South Park"
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park"
+
+        first_aired    name         tvdbid
+        -----------    ----         ------
+        1997-08-01     South Park    75897
 
         In this example, we are looking for the show "South Park" and the TVDBID is returned.
 
