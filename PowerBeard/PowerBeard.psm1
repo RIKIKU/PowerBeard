@@ -405,3 +405,89 @@ Param (
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
+
+Function New-PowerBeardCommand {
+    <#
+    .SYNOPSIS
+        Allows for use of custom API commands and API commands not covered by the PowerBeard Module.
+
+        
+    .DESCRIPTION
+        Allows a user to be able to specify any API command or string of commands.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .PARAMETER  ApiCMD
+       specify an API command here. 
+       
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        http://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the server connection string object is generated based on what was entered in the
+        required parameters.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -ssl
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        https://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the connection info is the same as example 1, however, the ssl switch is used so the
+        protocol used is https instead of http.
+
+        
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -TestConneciton
+
+        Output
+        
+
+        message : 
+        result  : success
+
+        In this example, the test connection switch is used and as you can see the connection result is a success.
+        If it were to fail, the result would be "error" and there would be a message displayed as to what the error is.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This command is intended as a precurser to any PowerBeard function.
+
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, $ApiCMD = "sb")
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+        }
+    Process{
+        [string]$url = "$($ServerConnectionString)?cmd=$ApiCMD"
+
+        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
+        [net.httpWebResponse] $response = $request.getResponse()
+        $responseStream = $response.getResponseStream()
+        $sr = new-object IO.StreamReader($responseStream)
+        $result = $sr.ReadToEnd()
+        ConvertFrom-Json $result
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
