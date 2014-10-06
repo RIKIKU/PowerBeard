@@ -39,7 +39,7 @@
         tvdbid          : 75897
         result          : success
 
-        In this example we get the show info for a show with the tvdbid of 123456
+        In this example we get the show info for a show with the tvdbid of 75897
 
     .EXAMPLE
         New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
@@ -74,7 +74,7 @@
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)]$tvdbid,
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int]$tvdbid,
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
 
@@ -85,7 +85,8 @@
           }
     Process{
         #compile the appropriate URL here.
-            [string]$url = $ServerConnectionString + "?cmd=show&tvdbid=" + $tvdbid
+            [string]$url += $ServerConnectionString
+            [string]$url += "?cmd=show&tvdbid=$tvdbid"
             
         #send request to server and retrieve output
             [net.httpWebRequest] $request  = [net.webRequest]::create($url)
@@ -175,7 +176,8 @@ Function Get-PowerBeardShows{
           }
     Process{
         #compile the appropriate URL here.
-            [string]$url = $ServerConnectionString + "?cmd=shows"
+            [string]$url += $ServerConnectionString
+            [string]$url += "?cmd=shows"
             
         #send request to server and retrieve output
             [net.httpWebRequest] $request  = [net.webRequest]::create($url)
@@ -257,7 +259,8 @@ Function Get-PowerBeardTvdbID{
         }
     Process{
         #compile the appropriate URL here.
-        [string]$url = $ServerConnectionString + "?cmd=sb.searchtvdb&name=" + $ShowName
+        [string]$url += $ServerConnectionString
+        [string]$url += "?cmd=sb.searchtvdb&name=$ShowName"
         #send request to server and retrieve output
         [net.httpWebRequest] $request  = [net.webRequest]::create($url)
         [net.httpWebResponse] $response = $request.getResponse()
@@ -380,7 +383,8 @@ Param (
             [string]$urlbase = "http://$server`:$Port/api/$ApiKey/"
             }
         if($TestConneciton){
-            $url = $urlbase + "?cmd=sb"
+            [string]$url += $urlbase
+            [string]$url += "?cmd=sb"
 
         [net.httpWebRequest] $request  = [net.webRequest]::create($url)
         [net.httpWebResponse] $response = $request.getResponse()
