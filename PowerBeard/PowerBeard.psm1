@@ -1,4 +1,36 @@
 ﻿Function Get-PowerBeardShowInfo{
+    <#
+    .SYNOPSIS
+        used to return information about a show.
+
+        
+    .DESCRIPTION
+        Use this function to return information about a show by inputing its TVDBID. A list of TVDBIDs may be used.  
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+    
+    .PARAMETER  tvdbid
+        Use this parameter to input the TVDBID, a list of TVDBIDs may be used here.
+        Also accepts pipeline input from Get-PowerBeardTVDBID
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff |
+         Get-PowerBeardShowInfo -tvdbid 123456
+
+        In this example we get the show info for a show with the tvdbid of 123456
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
+         Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
+
+        In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
+        ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+    #>
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)]$tvdbid,
@@ -38,6 +70,33 @@
 }
 
 Function Get-PowerBeardShows{
+        <#
+    .SYNOPSIS
+        Returns all shows currently added to your SickBeard server.
+
+        
+    .DESCRIPTION
+        Running this funciton will return a list of shows that you currently have.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff |
+        Get-PowerBeardShows
+
+        In this example we use the function and the list of shows I have is returned.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This function is used to return a list of shows that you currently have.
+
+    #>
+
     [CmdletBinding()]
     Param (
             [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
