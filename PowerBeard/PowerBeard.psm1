@@ -1,4 +1,77 @@
 ﻿Function Get-PowerBeardShowInfo{
+    <#
+    .SYNOPSIS
+        used to return information about a show.
+
+        
+    .DESCRIPTION
+        Use this function to return information about a show by inputing its TVDBID. A list of TVDBIDs may be used.  
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+    
+    .PARAMETER  tvdbid
+        Use this parameter to input the TVDBID, a list of TVDBIDs may be used here.
+        Also accepts pipeline input from Get-PowerBeardTVDBID
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowInfo -tvdbid 75897
+         
+        
+        air_by_date     : 0
+        airs            : Wednesday 10:00 PM
+        cache           : @{banner=1; poster=1}
+        flatten_folders : 0
+        genre           : {Animation, Comedy}
+        language        : en
+        location        : T:\Media\TV Shows\South Park
+        network         : Comedy Central
+        next_ep_airdate : 2014-10-08
+        paused          : 0
+        quality         : HD720p
+        quality_details : @{archive=System.Object[]; initial=System.Object[]}
+        season_list     : {18, 17, 16, 15...}
+        show_name       : South Park
+        status          : Continuing
+        tvrage_id       : 5266
+        tvrage_name     : South Park
+        tvdbid          : 75897
+        result          : success
+
+        In this example we get the show info for a show with the tvdbid of 123456
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
+        
+        
+        air_by_date     : 0
+        airs            : Wednesday 10:00 PM
+        cache           : @{banner=1; poster=1}
+        flatten_folders : 0
+        genre           : {Animation, Comedy}
+        language        : en
+        location        : T:\Media\TV Shows\South Park
+        network         : Comedy Central
+        next_ep_airdate : 2014-10-08
+        paused          : 0
+        quality         : HD720p
+        quality_details : @{archive=System.Object[]; initial=System.Object[]}
+        season_list     : {18, 17, 16, 15...}
+        show_name       : South Park
+        status          : Continuing
+        tvrage_id       : 5266
+        tvrage_name     : South Park
+        tvdbid          : 75897
+        result          : success
+
+        In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
+        ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+    #>
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)]$tvdbid,
@@ -38,6 +111,58 @@
 }
 
 Function Get-PowerBeardShows{
+        <#
+    .SYNOPSIS
+        Returns all shows currently added to your SickBeard server.
+
+        
+    .DESCRIPTION
+        Running this funciton will return a list of shows that you currently have.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardShows
+
+        show_name       : Stargate Universe
+        tvrage_name     : Stargate Universe
+        tvdbid          : 83237
+        tvrage_id       : 15343
+        status          : Ended
+        next_ep_airdate : 
+        quality         : HD720p
+        paused          : 0
+        network         : Syfy
+        language        : en
+        air_by_date     : 0
+        cache           : @{banner=1; poster=1}
+
+        show_name       : Warehouse 13
+        tvrage_name     : Warehouse 13
+        tvdbid          : 84676
+        tvrage_id       : 7884
+        status          : Ended
+        next_ep_airdate : 
+        quality         : HD720p
+        paused          : 0
+        network         : Syfy
+        language        : en
+        air_by_date     : 0
+        cache           : @{banner=1; poster=1}
+
+        In this example I use the function and the list of shows I have is returned.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This function is used to return a list of shows that you currently have.
+
+    #>
+
     [CmdletBinding()]
     Param (
             [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
@@ -82,6 +207,43 @@ Function Get-PowerBeardShows{
 }
 
 Function Get-PowerBeardTvdbID{
+    <#
+    .SYNOPSIS
+        When a show name is entered the TVDBID of that show is returned.
+
+        
+    .DESCRIPTION
+        This funciton searches for a showname and returns the tvdbid of those shows. Wild cards can be used.
+        This function may retrun many TVDBIDs.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .PARAMETER  ShowName
+       Enter the name of the show you are looking for here.
+       
+    .PARAMETER  PassThru
+       Use this switch if you want to pass the ServerConnectionString through to the pipeline.
+
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park"
+
+        first_aired    name         tvdbid
+        -----------    ----         ------
+        1997-08-01     South Park    75897
+
+        In this example, we are looking for the show "South Park" and the TVDBID is returned.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This function is used to retrieve the TVDBID of any show.
+
+    #>
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString,
@@ -120,11 +282,84 @@ Function Get-PowerBeardTvdbID{
 }
 
 Function New-PowerBeardConnection {
+<#
+    .SYNOPSIS
+        Generates the ServerConnectionString which is required for many other PowerBeard Functions
+
+        
+    .DESCRIPTION
+        Helps a user generate a correctly formatted URL string by asking for a set of
+        parameters and passing the info to the pipeline. This funciton can also be used
+        to test the supplied connection info and return a success or error message.
+
+    .PARAMETER  Server
+        Specify the Hostname of the server that you want to connect to.
+
+    .PARAMETER  Port
+       Specify the port number of the server.
+       
+    .PARAMETER  ApiKey
+       Specify the API Key. You can get this information or generate a new API key in
+       the settins on the SickBeard web interface.
+
+    .PARAMETER  ssl
+       Use this switch if you are connecting to a server that uses SSL.
+
+    .PARAMETER  TestConneciton
+       Use this switch if you want to test the connection settings you just entered.
+
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        http://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the server connection string object is generated based on what was entered in the
+        required parameters.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -ssl
+
+        Output
+        
+        ServerConnectionString                                                                                                                    
+        ----------------------                                                                                                                    
+        https://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+
+        In this example, the connection info is the same as example 1, however, the ssl switch is used so the
+        protocol used is https instead of http.
+
+        
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -TestConneciton
+
+        Output
+        
+
+        message : 
+        result  : success
+
+        In this example, the test connection switch is used and as you can see the connection result is a success.
+        If it were to fail, the result would be "error" and there would be a message displayed as to what the error is.
+
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This command is intended as a precurser to any PowerBeard function.
+
+#>
+
 [CmdletBinding()]
 Param (
-        [Parameter(Mandatory=$True)]$Server,
-        [Parameter(Mandatory=$True)]$Port,
-        [Parameter(Mandatory=$True)]$ApiKey,
+        [Parameter(Mandatory=$True)][string]$Server,
+        [Parameter(Mandatory=$True)][int]$Port,
+        [Parameter(Mandatory=$True)][string]$ApiKey,
         [Parameter(Mandatory=$false)][switch]$ssl,
         [parameter(Mandatory=$false)][switch]$TestConneciton
         )
