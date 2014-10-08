@@ -405,3 +405,89 @@ Param (
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
+
+Function New-PowerBeardCommand {
+    <#
+    .SYNOPSIS
+        Allows for use of custom API commands and API commands not covered by the PowerBeard Module.
+
+        
+    .DESCRIPTION
+        Allows a user to be able to specify any API command or a "chain" of API commands. Nearly all of the functions in the PowerBeard
+        Module are built on top of this function so that should give you an idea as to how powerfull this function is.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .PARAMETER  ApiCMD
+       specify an API command here. You can use the normal API method for stringing multiple commands together.
+       If no value is provided, the API command "sb" is used by default.
+       
+    .EXAMPLE
+        $ServerConnectionString = (New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff)
+        $ServerConnectionString | New-PowerBeardCommand -ApiCMD sb
+
+        Output
+
+        data                                           message                                       result                                       
+        ----                                           -------                                       ------                                       
+        @{api_commands=System.Object[]; api_version...                                               success 
+
+
+        In this example, the API command "sb" was issued and this was the result.
+
+    .EXAMPLE
+        ($ServerConnectionString | New-PowerBeardCommand -ApiCMD sb).data.api_version
+        
+        Output
+
+        4
+
+        In this example, I have drilled down into the results of the previous example and retrieved the API version.
+        
+    .EXAMPLE
+        ($ServerConnectionString | New-PowerBeardCommand -ApiCMD "sb.getdefaults|sb.getrootdirs|logs&min_level=error").data | FL
+
+        Output
+
+        logs           : @{data=System.Object[]; message=; result=success}
+        sb.getdefaults : @{data=; message=; result=success}
+        sb.getrootdirs : @{data=System.Object[]; message=; result=success}
+
+        This example shows how API commands can be "chained" together. It is important to remember here that this is a function of 
+        the SickBeard API and not powershell. More information on Chaining API commands can be found on the SickBeard API page.
+
+    .OUTPUTS
+        This funciton outputs a Powershell Object.
+
+    .FUNCTIONALITY
+        This command allows advanced API usage.
+
+    .LINK
+        http://sickbeard.com/api
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, [string[]]$ApiCMD = "sb")
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+        }
+    Process{
+        [string]$url = "$($ServerConnectionString)?cmd=$ApiCMD"
+
+        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
+        [net.httpWebResponse] $response = $request.getResponse()
+        $responseStream = $response.getResponseStream()
+        $sr = new-object IO.StreamReader($responseStream)
+        $result = $sr.ReadToEnd()
+        ConvertFrom-Json $result
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
