@@ -413,63 +413,63 @@ Function New-PowerBeardCommand {
 
         
     .DESCRIPTION
-        Allows a user to be able to specify any API command or string of commands.
+        Allows a user to be able to specify any API command or a "chain" of API commands. Nearly all of the functions in the PowerBeard
+        Module are built on top of this function so that should give you an idea as to how powerfull this function is.
 
     .PARAMETER  ServerConnectionString
         This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
         be used here instead.
 
     .PARAMETER  ApiCMD
-       specify an API command here. 
+       specify an API command here. You can use the normal API method for stringing multiple commands together.
+       If no value is provided, the API command "sb" is used by default.
        
     .EXAMPLE
-        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff
+        $ServerConnectionString = (New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff)
+        $ServerConnectionString | New-PowerBeardCommand -ApiCMD sb
 
         Output
-        
-        ServerConnectionString                                                                                                                    
-        ----------------------                                                                                                                    
-        http://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
 
-        In this example, the server connection string object is generated based on what was entered in the
-        required parameters.
+        data                                           message                                       result                                       
+        ----                                           -------                                       ------                                       
+        @{api_commands=System.Object[]; api_version...                                               success 
+
+
+        In this example, the API command "sb" was issued and this was the result.
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -ssl
-
-        Output
+        ($ServerConnectionString | New-PowerBeardCommand -ApiCMD sb).data.api_version
         
-        ServerConnectionString                                                                                                                    
-        ----------------------                                                                                                                    
-        https://MySBServer:8081/api/ab3a1537af30c8d65765081a9fa148ff/
+        Output
 
-        In this example, the connection info is the same as example 1, however, the ssl switch is used so the
-        protocol used is https instead of http.
+        4
 
+        In this example, I have drilled down into the results of the previous example and retrieved the API version.
         
     .EXAMPLE
-        New-PowerBeardConnection -Server MySBServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff -TestConneciton
+        ($ServerConnectionString | New-PowerBeardCommand -ApiCMD "sb.getdefaults|sb.getrootdirs|logs&min_level=error").data | FL
 
         Output
-        
 
-        message : 
-        result  : success
+        logs           : @{data=System.Object[]; message=; result=success}
+        sb.getdefaults : @{data=; message=; result=success}
+        sb.getrootdirs : @{data=System.Object[]; message=; result=success}
 
-        In this example, the test connection switch is used and as you can see the connection result is a success.
-        If it were to fail, the result would be "error" and there would be a message displayed as to what the error is.
-
+        This example shows how API commands can be "chained" together. It is important to remember here that this is a function of 
+        the SickBeard API and not powershell. More information on Chaining API commands can be found on the SickBeard API page.
 
     .OUTPUTS
         This funciton outputs a Powershell Object.
 
     .FUNCTIONALITY
-        This command is intended as a precurser to any PowerBeard function.
+        This command allows advanced API usage.
 
+    .LINK
+        http://sickbeard.com/api
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, $ApiCMD = "sb")
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, [string[]]$ApiCMD = "sb")
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
