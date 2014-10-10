@@ -1,5 +1,5 @@
 ﻿Function New-PowerBeardConnection {
-<#
+    <#
     .SYNOPSIS
         Generates the ServerConnectionString which is required for many other PowerBeard Functions
 
@@ -71,9 +71,8 @@
         This command is intended as a precurser to any PowerBeard function.
 
 #>
-
-[CmdletBinding()]
-Param (
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$True)][string]$Server,
         [Parameter(Mandatory=$True)][int]$Port,
         [Parameter(Mandatory=$True)][string]$ApiKey,
@@ -171,6 +170,15 @@ Function New-PowerBeardCommand {
         This example shows how API commands can be "chained" together. It is important to remember here that this is a function of 
         the SickBeard API and not powershell. More information on Chaining API commands can be found on the SickBeard API page.
 
+    .EXAMPLE
+        New-PowerBeardCommand -ServerConnectionString $ServerConnectionString.ServerConnectionString -ApiCMD sb
+
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+@{api_commands=System.Object[]; api_version...                                               success                                      
+    
+    In this example, we see how the -ServerConnectionString parameter can be used.
+    
     .OUTPUTS
         This funciton outputs a Powershell Object.
 
@@ -182,7 +190,7 @@ Function New-PowerBeardCommand {
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, [string]$ApiCMD)
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True,ValueFromPipeline=$True)][string[]]$ServerConnectionString, [Parameter(Mandatory=$True)][string]$ApiCMD)
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
@@ -284,7 +292,6 @@ Function Get-PowerBeardShowInfo{
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int]$tvdbid,
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
-
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
@@ -302,8 +309,8 @@ Function Get-PowerBeardShowInfo{
             $sr = new-object IO.StreamReader($responseStream)
             $result = $sr.ReadToEnd()
             $PreprocessInfo = ConvertFrom-Json $result#>
-            [string]$APICMD2 += "show&tvdbid=$tvdbid"
-            $PreprocessInfo = New-PowerBeardCommand -ServerConnectionString $ServerConnectionString -ApiCMD $APICMD2
+            [string]$APICMD = "show&tvdbid=$tvdbid"
+            $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
                 $showinfo = $PreprocessInfo.data
@@ -321,7 +328,7 @@ Function Get-PowerBeardShowInfo{
 }
 
 Function Get-PowerBeardShows{
-        <#
+    <#
     .SYNOPSIS
         Returns all shows currently added to your SickBeard server.
 
@@ -372,12 +379,10 @@ Function Get-PowerBeardShows{
         This function is used to return a list of shows that you currently have.
 
     #>
-
     [CmdletBinding()]
     Param (
             [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
-
     Begin{ 
             $sysvars = Get-Variable |
             select -ExpandProperty Name
@@ -385,17 +390,9 @@ Function Get-PowerBeardShows{
           }
     Process{
         #compile the appropriate URL here.
-            [string]$url += $ServerConnectionString
-            [string]$url += "?cmd=shows"
-            
+            [string]$APICMD = "shows"
         #send request to server and retrieve output
-            [net.httpWebRequest] $request  = [net.webRequest]::create($url)
-            [net.httpWebResponse] $response = $request.getResponse()
-            $responseStream = $response.getResponseStream()
-            $sr = new-object IO.StreamReader($responseStream)
-            $result = $sr.ReadToEnd()
-            $PreprocessInfo = ConvertFrom-Json $result
-            
+            $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
             if($PreprocessInfo.result -eq "success"){
                 [array]$shows = $PreprocessInfo.data
                 $tvdbids = ($shows | Get-Member | Where-Object -Property Name -NotMatch 'a|e|i|o|u' | select -Property Name)
@@ -406,10 +403,9 @@ Function Get-PowerBeardShows{
                 }
 
             else{
-                Write-Output $PreprocessInfo | select -Property message, result
+                Write-Output $PreprocessInfo | select -Property message, result, data
                 }
             }
-        
     End{
         Get-Variable | 
         where {$sysvars -notcontains $_.Name } |
@@ -468,16 +464,11 @@ Function Get-PowerBeardTvdbID{
         }
     Process{
         #compile the appropriate URL here.
-        [string]$url += $ServerConnectionString
-        [string]$url += "?cmd=sb.searchtvdb&name=$ShowName"
+        [string]$APICMD = "sb.searchtvdb&name=$ShowName"
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        
         #send request to server and retrieve output
-        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
-        [net.httpWebResponse] $response = $request.getResponse()
-        $responseStream = $response.getResponseStream()
-        $sr = new-object IO.StreamReader($responseStream)
-        $result = $sr.ReadToEnd()
-        $CommandResponse = ConvertFrom-Json $result
-        $FilteredResult=$CommandResponse.data.results
+        $FilteredResult=$PreprocessInfo.data.results
         if($PassThru){
             $FilteredResult | Add-Member NoteProperty ServerConnectionString $ServerConnectionString -PassThru
         }
