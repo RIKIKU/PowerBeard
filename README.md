@@ -22,4 +22,4 @@ the output will show all of the locations you can copy the module to.
 
 * Kyle Smith (@RIKIKU1)
 
-I won't bite most of the time; so if you have any questions please feel free to contact me on my twitter account. but remember that Bugs and feature requests should be discussed through the issue tracker. ^_^
+I won't bite most of the time; so if you have any questions please feel free to contact me on my twitter account. But please remember that Bugs and feature requests should be discussed through the issue tracker. ^_^
