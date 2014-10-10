@@ -483,3 +483,5 @@ Function Get-PowerBeardTvdbID{
     }
 
 }
+
+Export-ModuleMember -Function Get-PowerBeardShowInfo, Get-PowerBeardShows, Get-PowerBeardTvdbID, New-PowerBeardCommand, New-PowerBeardConnection
