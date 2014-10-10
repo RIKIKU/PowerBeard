@@ -171,6 +171,15 @@ Function New-PowerBeardCommand {
         This example shows how API commands can be "chained" together. It is important to remember here that this is a function of 
         the SickBeard API and not powershell. More information on Chaining API commands can be found on the SickBeard API page.
 
+    .EXAMPLE
+        New-PowerBeardCommand -ServerConnectionString $ServerConnectionString.ServerConnectionString -ApiCMD sb
+
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+@{api_commands=System.Object[]; api_version...                                               success                                      
+    
+    In this example, we see how the -ServerConnectionString parameter can be used.
+    
     .OUTPUTS
         This funciton outputs a Powershell Object.
 
@@ -182,7 +191,7 @@ Function New-PowerBeardCommand {
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString, [string]$ApiCMD)
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True,ValueFromPipeline=$True)][string[]]$ServerConnectionString, [Parameter(Mandatory=$True)][string]$ApiCMD)
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
@@ -284,7 +293,6 @@ Function Get-PowerBeardShowInfo{
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int]$tvdbid,
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
-
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
@@ -302,8 +310,8 @@ Function Get-PowerBeardShowInfo{
             $sr = new-object IO.StreamReader($responseStream)
             $result = $sr.ReadToEnd()
             $PreprocessInfo = ConvertFrom-Json $result#>
-            [string]$APICMD2 += "show&tvdbid=$tvdbid"
-            $PreprocessInfo = New-PowerBeardCommand -ServerConnectionString $ServerConnectionString -ApiCMD $APICMD2
+            [string]$APICMD += "show&tvdbid=$tvdbid"
+            $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
                 $showinfo = $PreprocessInfo.data
