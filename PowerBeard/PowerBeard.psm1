@@ -371,6 +371,39 @@ Function Get-PowerBeardShows{
 
         In this example I use the function and the list of shows I have is returned.
 
+    .EXAMPLE
+        $ServerConnectionString | Get-PowerBeardShows -Sort Name | ft
+
+show_name     tvrage_name          tvdbid     tvrage_id status        next_ep_airda quality    paused network       language    
+                                                                      te                                                                  
+---------     -----------          ------     --------- ------        ------------- -------    ------ -------       --------    
+A Young Do...                      263828             0 Continuing                  HD720p          0 Sky Arts      en          
+Adventure ... Adventure ...        152831         23369 Continuing    2014-10-28    Custom          0 Cartoon Ne... en          
+Archer (2009) Archer (2009)        110381         23354 Continuing                  HD720p          0 FX            en          
+Arrow         Arrow                257655         30715 Continuing    2014-10-15    Custom          0 The CW        en          
+Avatar: Th... Avatar: Th...         74852          2680 Ended                       HD720p          0 Nickelodeon   en          
+Blue Mount... Blue Mount...        134511         22667 Ended                       HD720p          0 Spike TV      en          
+Breaking Bad  Breaking Bad          81189         18164 Ended                       HD720p          0 AMC           en 
+
+    In this example the server returned the shows in name order.
+    .EXAMPLE
+       $ServerConnectionString | Get-PowerBeardShows name Paused
+
+
+show_name       : Lost Girl
+tvrage_name     : Lost Girl
+tvdbid          : 182061
+tvrage_id       : 26401
+status          : Continuing
+next_ep_airdate : 2014-12-07
+quality         : HD720p
+paused          : 1
+network         : Showcase
+language        : en
+air_by_date     : 0
+cache           : @{banner=1; poster=1}
+
+In this example only the paused shows are returned.
 
     .OUTPUTS
         This funciton outputs a Powershell Object.
@@ -381,7 +414,9 @@ Function Get-PowerBeardShows{
     #>
     [CmdletBinding()]
     Param (
-            [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            [parameter(Mandatory=$False, Position=1)][ValidateSet("ID", "Name")]$Sort,
+            [parameter(Mandatory=$False, Position=2)][ValidateSet("UnPaused","Paused")]$paused,
+            [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True, Position=3)][string[]]$ServerConnectionString
             )
     Begin{ 
             $sysvars = Get-Variable |
@@ -389,13 +424,25 @@ Function Get-PowerBeardShows{
             $sysvars += 'sysvars'
           }
     Process{
-        #compile the appropriate URL here.
             [string]$APICMD = "shows"
-        #send request to server and retrieve output
+            if($Sort -eq "ID"){
+                [string]$APICMD += "&sort=id"
+                }
+            elseif($sort -eq "Name"){
+                [string]$APICMD += "&sort=name"
+                }
+            if($paused -eq "Paused" ){
+                [string]$APICMD += "&paused=1"
+                }
+            elseif($paused -eq "UnPaused"){
+                [string]$APICMD += "&paused=0"
+                }
+
+            #send request to server and retrieve output
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
             if($PreprocessInfo.result -eq "success"){
                 [array]$shows = $PreprocessInfo.data
-                $tvdbids = ($shows | Get-Member | Where-Object -Property Name -NotMatch 'a|e|i|o|u' | select -Property Name)
+                $tvdbids = ($shows | Get-Member -MemberType NoteProperty | select -Property Name)
                 foreach ($tvdbid in $tvdbids){
                          $output = ($PreprocessInfo.data.$($tvdbid.name)) | select -Property show_name, tvrage_name, tvdbid, tvrage_id, status, next_ep_airdate, quality, paused, network, language, air_by_date, cache
                          Write-Output $output
