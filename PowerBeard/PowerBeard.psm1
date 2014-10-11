@@ -381,7 +381,9 @@ Function Get-PowerBeardShows{
     #>
     [CmdletBinding()]
     Param (
-            [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            [parameter(Mandatory=$False, Position=1)][ValidateSet("ID", "Name")]$Sort,
+            [parameter(Mandatory=$False, Position=2)][ValidateSet("UnPaused","Paused")]$paused,
+            [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True, Position=3)][string[]]$ServerConnectionString
             )
     Begin{ 
             $sysvars = Get-Variable |
@@ -389,13 +391,25 @@ Function Get-PowerBeardShows{
             $sysvars += 'sysvars'
           }
     Process{
-        #compile the appropriate URL here.
             [string]$APICMD = "shows"
-        #send request to server and retrieve output
+            if($Sort -eq "ID"){
+                [string]$APICMD += "&sort=id"
+                }
+            elseif($sort -eq "Name"){
+                [string]$APICMD += "&sort=name"
+                }
+            if($paused -eq "Paused" ){
+                [string]$APICMD += "&paused=1"
+                }
+            elseif($paused -eq "UnPaused"){
+                [string]$APICMD += "&paused=0"
+                }
+
+            #send request to server and retrieve output
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
             if($PreprocessInfo.result -eq "success"){
                 [array]$shows = $PreprocessInfo.data
-                $tvdbids = ($shows | Get-Member | Where-Object -Property Name -NotMatch 'a|e|i|o|u' | select -Property Name)
+                $tvdbids = ($shows | Get-Member -MemberType NoteProperty | select -Property Name)
                 foreach ($tvdbid in $tvdbids){
                          $output = ($PreprocessInfo.data.$($tvdbid.name)) | select -Property show_name, tvrage_name, tvdbid, tvrage_id, status, next_ep_airdate, quality, paused, network, language, air_by_date, cache
                          Write-Output $output
