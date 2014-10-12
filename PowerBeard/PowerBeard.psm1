@@ -653,6 +653,8 @@ Function Remove-PowerBeardShow{
     
     .PARAMETER  tvdbid
         Supply the DVDBID of the show you wish to delete.
+    .PARAMETER Confirm
+        If this switch is used then the user will be asked to confirm that they are sure they want to delete the show.
 
     .EXAMPLE
         New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Remove-PowerBeardShow 81189
@@ -688,7 +690,8 @@ a loop to delete each show in the list.
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True,Position=1)][int[]]$tvdbid,
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString,
+        [Parameter(Mandatory=$False)][switch]$Confirm
             )
     Begin{
         $sysvars = Get-Variable |
@@ -696,11 +699,30 @@ a loop to delete each show in the list.
         $sysvars += 'sysvars'
           }
     Process{
+        If($Confirm){
+            $title = "Confirm Delete"
+            $message = "Are you sure that you want to delete $($tvdbid)?"
+            $Y = New-Object System.Management.Automation.Host.ChoiceDescription "Yes"
+            $N = New-Object System.Management.Automation.Host.ChoiceDescription "No"
+            $options = [System.Management.Automation.Host.ChoiceDescription[]]($Y, $N)
+            $SiteOrService = $host.ui.PromptForChoice($title, $message, $options, 1) 
+            if ($SiteOrService -eq 0){
+                [string]$APICMD = "show.delete&tvdbid=$tvdbid"
+                $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+                #filter the output based on result message.
+                Write-Output $PreprocessInfo
+                }
+            else{
+                Write-Output "Operation Canceled"
+                }
+            }
+        Else{
             [string]$APICMD = "show.delete&tvdbid=$tvdbid"
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
-        #filter the output based on result message.
+            #filter the output based on result message.
             Write-Output $PreprocessInfo
             }
+        }
     End{
         Get-Variable | 
         where {$sysvars -notcontains $_.Name} |
