@@ -1,76 +1,49 @@
 ﻿Function Remove-PowerBeardShow{
     <#
     .SYNOPSIS
-        used to return information about a show.
+        Used to delete a show from SickBeard.
 
         
     .DESCRIPTION
-        Use this function to return information about a show by inputing its TVDBID. A list of TVDBIDs may be used.  
+        This funciton deletes shows from SickBeard when you provide the TVDBID.  
 
     .PARAMETER  ServerConnectionString
         This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
         be used here instead.
     
     .PARAMETER  tvdbid
-        Use this parameter to input the TVDBID, a list of TVDBIDs may be used here.
-        Also accepts pipeline input from Get-PowerBeardTVDBID
+        Supply the DVDBID of the show you wish to delete.
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowInfo -tvdbid 75897
-         
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Remove-PowerBeardShow 81189
 
-        In this example we get the show info for a show with the tvdbid of 75897
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+                                               Breaking Bad has been deleted                 success
+
+In this example; the show "Breaking Bad" was deleted.
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
-        
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
-
-        In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
-        ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
+        $ServerConnectionString = (New-PowerBeardConnection -Server localhost -Port 8081 -ApiKey 8ba833c4eddf362f567c4f64b637402e)
+        $ServerConnectionString | Get-PowerBeardShows | export-csv C:\Users\kyles_000\Documents\PBTest.csv
 
 
-    .OUTPUTS
-        This funciton outputs a Powershell Object.
+$test = import-csv C:\Users\kyles_000\Documents\PBTest.csv
+foreach($tvdbid in $test.tvdbid){ 
+$ServerConnectionString | Remove-PowerBeardShow $tvdbid}
+
+message                                       result                                       
+-------                                       ------                                       
+Archer (2009) has been deleted                success                                      
+Game of Thrones has been deleted              success                                      
+Spartacus has been deleted                    success                                      
+Blue Mountain State has been deleted          success
+
+In this example, a csv file was created that contained all of the shows that I currently have.(ran seperatly)
+I then removed the shows that I didnt want to delete, from the CSV file and imported it into a variable, where I created
+a loop to delete each show in the list.
+
+
     #>
     [CmdletBinding()]
     Param (
