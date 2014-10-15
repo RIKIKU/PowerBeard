@@ -193,13 +193,22 @@ Function Get-PowerBeardShowSeasons{
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
             #This will be a better way of doing this. http://blogs.msdn.com/b/powershell/archive/2009/12/05/new-object-psobject-property-hashtable.aspx
-                $SeasonNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
-                $Episodes = New-Object psobject @{Season = "$SeasonNo"}
+                $Seasons = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
+                $Episodes = New-Object psobject -Property @{
+                    Season  = $SeasonNo
+                    Episode = $EpisodeNo
+                    Airdate = $airdate
+                    Name    = $EpName
+                    Quality = $EpQuality
+                    Status  = $EpStatus
+                    }
+                $wingwong = $PreprocessInfo.data
                 foreach ($SeasonNo in $SeasonNos.Name){
                     
-                    $Episodes.$($SeasonNo) += $PreprocessInfo.data.$($SeasonNo)
-                    }
-                
+                    $Episodes.Season  += $wingwong.$($SeasonNo)
+                    #need to loop through each episode in each season here.
+                    $Episodes.Episode += ($wingwong.$($SeasonNo))
+                    } #>
                 }
             else{
                 $PreprocessInfo
