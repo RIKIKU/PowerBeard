@@ -194,15 +194,8 @@ Function Get-PowerBeardShowSeasons{
             if($PreprocessInfo.result -eq "success"){
             #This will be a better way of doing this. http://blogs.msdn.com/b/powershell/archive/2009/12/05/new-object-psobject-property-hashtable.aspx
                 $SeasonNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
-                $SeasonTable = New-Object psobject -Property @{
-                    Season  = [int]$SeasonNo
-                    Episode = [int]$EpisodeNo
-                    Airdate = $airdate
-                    Name    = $EpName
-                    Quality = $EpQuality
-                    Status  = $EpStatus
-                    }
                 $RawData = $PreprocessInfo.data
+                $OutputArray = @()
                 foreach ($SeasonNo in $SeasonNos.Name){
                     $SeasonMicro = $RawData.$($SeasonNo)
                     
@@ -210,17 +203,20 @@ Function Get-PowerBeardShowSeasons{
                     #need to loop through each episode in each season here
                     $EpisodeNos = Get-Member -InputObject ($PreprocessInfo.data).$($SeasonNo) -MemberType NoteProperty
                     foreach($EpisodeNo in $EpisodeNos.Name){ 
-                        $SeasonTable.Season  = $SeasonNo
-                        $SeasonTable.Episode = $EpisodeNo
-                        $SeasonTable.Name = ($SeasonMicro.$($EpisodeNo)).Name
-                        $SeasonTable.Status = ($SeasonMicro.$($EpisodeNo)).Status
-                        $SeasonTable.Quality = ($SeasonMicro.$($EpisodeNo)).Quality
-                        $SeasonTable.Airdate = ($SeasonMicro.$($EpisodeNo)).Airdate
-                        $SeasonTable
+                        $SeasonTable = New-Object psobject -Property @{
+                            Season  = [int]$SeasonNo
+                            Episode = [int]$EpisodeNo
+                            Airdate = ($SeasonMicro.$($EpisodeNo)).Airdate
+                            Name    = ($SeasonMicro.$($EpisodeNo)).Name
+                            Quality = ($SeasonMicro.$($EpisodeNo)).Quality
+                            Status  = ($SeasonMicro.$($EpisodeNo)).Status
+                            }
+                        $OutputArray += $SeasonTable
                         }
                     
                     
                     }
+                Write-Output $OutputArray
                 }
             else{
                 $PreprocessInfo
