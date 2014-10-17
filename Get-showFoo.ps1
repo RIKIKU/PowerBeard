@@ -177,7 +177,7 @@ Function Get-PowerBeardShowSeasons{
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int[]]$tvdbid,
-        [Parameter(Mandatory=$false)][int[]]$Season,
+        [Parameter(Mandatory=$false)][int]$Season,
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
     Begin{
@@ -192,31 +192,47 @@ Function Get-PowerBeardShowSeasons{
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
-            #This will be a better way of doing this. http://blogs.msdn.com/b/powershell/archive/2009/12/05/new-object-psobject-property-hashtable.aspx
-                $SeasonNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
                 $RawData = $PreprocessInfo.data
                 $OutputArray = @()
-                foreach ($SeasonNo in $SeasonNos.Name){
-                    $SeasonMicro = $RawData.$($SeasonNo)
-                    
-                    
-                    #need to loop through each episode in each season here
-                    $EpisodeNos = Get-Member -InputObject ($PreprocessInfo.data).$($SeasonNo) -MemberType NoteProperty
-                    foreach($EpisodeNo in $EpisodeNos.Name){ 
-                        $SeasonTable = New-Object psobject -Property @{
-                            Season  = [int]$SeasonNo
-                            Episode = [int]$EpisodeNo
-                            Airdate = ($SeasonMicro.$($EpisodeNo)).Airdate
-                            Name    = ($SeasonMicro.$($EpisodeNo)).Name
-                            Quality = ($SeasonMicro.$($EpisodeNo)).Quality
-                            Status  = ($SeasonMicro.$($EpisodeNo)).Status
+                
+                if($Season){
+                        #Loop through each episode
+                        $EpisodeNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
+                        foreach($EpisodeNo in $EpisodeNos.Name){
+                            $SeasonTable = New-Object psobject -Property @{
+                                Season  = [int]$Season
+                                Episode = [int]$EpisodeNo
+                                Airdate = ($RawData.$($EpisodeNo)).Airdate
+                                Name    = ($RawData.$($EpisodeNo)).Name
+                                Quality = ($RawData.$($EpisodeNo)).Quality
+                                Status  = ($RawData.$($EpisodeNo)).Status
+                                }
+                            $OutputArray += $SeasonTable
                             }
-                        $OutputArray += $SeasonTable
-                        }
-                    
-                    
+                        Write-Output $OutputArray | Sort-Object -property @{Expression="Season";Descending=$false}, @{Expression="Episode";Descending=$false}
                     }
-                Write-Output $OutputArray
+                else{
+                    #loop through each season here
+                    $SeasonNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
+                    foreach ($SeasonNo in $SeasonNos.Name){
+                        $SeasonMicro = $RawData.$($SeasonNo)
+                        
+                        #Loop through each episode in each season here
+                        $EpisodeNos = Get-Member -InputObject ($PreprocessInfo.data).$($SeasonNo) -MemberType NoteProperty
+                        foreach($EpisodeNo in $EpisodeNos.Name){
+                            $SeasonTable = New-Object psobject -Property @{
+                                Season  = [int]$SeasonNo
+                                Episode = [int]$EpisodeNo
+                                Airdate = ($SeasonMicro.$($EpisodeNo)).Airdate
+                                Name    = ($SeasonMicro.$($EpisodeNo)).Name
+                                Quality = ($SeasonMicro.$($EpisodeNo)).Quality
+                                Status  = ($SeasonMicro.$($EpisodeNo)).Status
+                                }
+                            $OutputArray += $SeasonTable
+                            }
+                    }
+                    Write-Output $OutputArray | Sort-Object -property @{Expression="Season";Descending=$false}, @{Expression="Episode";Descending=$false}
+                    }
                 }
             else{
                 $PreprocessInfo
