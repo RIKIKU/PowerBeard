@@ -103,76 +103,39 @@
 Function Get-PowerBeardShowSeasons{
     <#
     .SYNOPSIS
-        used to return information about a show.
+        used to return a list of all seasons and episodes.
 
         
     .DESCRIPTION
-        Use this function to return information about a show by inputing its TVDBID. A list of TVDBIDs may be used.  
+        Use this function to return a list of each season and each episode in each season. If the season parameter is 
+        defined then only the episodes for that season are returned.  
 
     .PARAMETER  ServerConnectionString
         This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
         be used here instead.
     
     .PARAMETER  tvdbid
-        Use this parameter to input the TVDBID, a list of TVDBIDs may be used here.
-        Also accepts pipeline input from Get-PowerBeardTVDBID
+        Specify the TVDBID of the show that you want to get the seasons for.
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowInfo -tvdbid 75897
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowSeasons -tvdbid 75897 | fl
          
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
+Episode Name                   Quality                Airdate                                Season Status
+------- ----                   -------                -------                                ------ ------
+1 Cartman Gets An Ana...       N/A                                                                0 Skipped
+2 The Spirit Of Chris...       N/A                    1992-12-14                                  0 Skipped
+3 The Spirit Of Chris...       N/A                    1995-12-25                                  0 Skipped
+4 Jay Leno Comes To S...       N/A                    1997-11-20                                  0 Skipped
+5 Chef Aid: Behind Th...       N/A                    1998-10-07                                  0 Skipped
+6 South Park: Bigger ...       N/A                    1999-06-30                                  0 Skipped
 
-        In this example we get the show info for a show with the tvdbid of 75897
-
-    .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
         
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
 
-        In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
-        ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
+        In this example the TVDBID was supplied and the result was piped into the FormatList cmdlet. I have truncated the list to make it shorter.
 
 
     .OUTPUTS
-        This funciton outputs a Powershell Object.
+        This funciton outputs a Powershell array Object.
     #>
     [CmdletBinding()]
     Param (
