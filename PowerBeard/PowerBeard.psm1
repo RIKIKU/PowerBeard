@@ -515,12 +515,18 @@ Function Get-PowerBeardTvdbID{
         $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         
         #send request to server and retrieve output
-        $FilteredResult=$PreprocessInfo.data.results
-        if($PassThru){
-            $FilteredResult | Add-Member NoteProperty ServerConnectionString $ServerConnectionString -PassThru
-        }
+        if($PreprocessInfo.result -eq "success"){
+        
+            $FilteredResult=$PreprocessInfo.data.results
+            if($PassThru){
+                $FilteredResult | Add-Member NoteProperty ServerConnectionString $ServerConnectionString -PassThru
+            }
+            else{
+                Write-Output $FilteredResult
+                }
+            }
         else{
-            Write-Output $FilteredResult
+            Write-Output $PreprocessInfo
             }
     }
     End{
@@ -623,8 +629,13 @@ Function Search-PowerBeardTvdb{
                 [string]$APICMD += "&tvdbid=$TVDBID"
                 }
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
-            $FilteredResult=$PreprocessInfo.data
-            Write-Output $FilteredResult
+            if($PreprocessInfo.result -eq "success"){
+                $FilteredResult=$PreprocessInfo.data
+                Write-Output $FilteredResult
+                }
+            Else{
+                Write-Output $PreprocessInfo
+                }
             }
         else{
             Throw "You must provide either the TVDBID or ShowName"

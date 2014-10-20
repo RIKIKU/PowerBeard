@@ -87,10 +87,10 @@
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
-                $PreprocessInfo.data
+                Write-Output $PreprocessInfo.data
                 }
             else{
-                $PreprocessInfo
+                Write-Output $PreprocessInfo
                 }
             }
     End{
@@ -135,7 +135,7 @@ Episode Name                   Quality                Airdate                   
 
 
     .OUTPUTS
-        This funciton outputs a Powershell array Object.
+        This funciton outputs a Powershell arra Object.
     #>
     [CmdletBinding()]
     Param (
@@ -198,7 +198,7 @@ Episode Name                   Quality                Airdate                   
                     }
                 }
             else{
-                $PreprocessInfo
+                Write-Output $PreprocessInfo
                 }
             }
     End{
@@ -207,3 +207,68 @@ Episode Name                   Quality                Airdate                   
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
+
+Function Get-PowerBeardShowQuality{
+    <#
+    .SYNOPSIS
+        used to return quality settings for a show.
+
+        
+    .DESCRIPTION
+        Use this function is used to return the Initial and Archive settings of a show.  
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+    
+    .PARAMETER  tvdbid
+        Use this parameter to input the TVDBID, a list of TVDBIDs may be used here.
+        Also accepts pipeline input from Get-PowerBeardTVDBID
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff |  Get-PowerBeardShowQuality -tvdbid 75897
+
+archive                                                               initial                                                             
+-------                                                               -------                                                             
+{}                                                                    {hdtv, hdwebdl, hdbluray}
+       
+In this example, the TVDBID is provided.
+    .EXAMPLE
+        $ServerConnectionString | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowQuality
+
+archive                                                               initial                                                             
+-------                                                               -------                                                             
+{}                                                                    {hdtv, hdwebdl, hdbluray}
+
+
+In this example, Get-PowerBeardTvdbID is piped into Get-PowerBeardShowQuality
+
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int[]]$tvdbid,
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+          }
+    Process{
+            [string]$APICMD = "show.getquality&tvdbid=$tvdbid"
+            $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        #filter the output based on result message.
+            if($PreprocessInfo.result -eq "success"){
+                Write-Output $PreprocessInfo.data
+                }
+            else{
+                Write-Output $PreprocessInfo
+                }
+            }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
+
