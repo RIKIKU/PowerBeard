@@ -177,7 +177,7 @@ Function Get-PowerBeardShowSeasons{
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][int[]]$tvdbid,
-        [Parameter(Mandatory=$false)][int]$Season,
+        [Parameter(Mandatory=$false)][int]$Season = 1010101010,
         [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
             )
     Begin{
@@ -187,7 +187,7 @@ Function Get-PowerBeardShowSeasons{
           }
     Process{
             [string]$APICMD = "show.seasons&tvdbid=$tvdbid"
-            if($Season){
+            if($Season -ne "1010101010"){
                 [string]$APICMD += "&season=$Season"}
             $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
         #filter the output based on result message.
@@ -195,7 +195,7 @@ Function Get-PowerBeardShowSeasons{
                 $RawData = $PreprocessInfo.data
                 $OutputArray = @()
                 
-                if($Season){
+                if($Season -ne "1010101010"){
                         #Loop through each episode
                         $EpisodeNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
                         foreach($EpisodeNo in $EpisodeNos.Name){
