@@ -273,13 +273,13 @@ In this example, Get-PowerBeardTvdbID is piped into Get-PowerBeardShowQuality
 }
 
 Function Get-PowerBeardShowCache{
+
     <#
     .SYNOPSIS
-        used to return information about a show.
+        Returns if the poster/banner SickBeard's image cache is valid.
 
-        
     .DESCRIPTION
-        Use this function to return information about a show by inputing its TVDBID. A list of TVDBIDs may be used.  
+        Use this function to find out if SickBeard's image cache is valid for a particular tvdbid.  
 
     .PARAMETER  ServerConnectionString
         This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
@@ -290,57 +290,13 @@ Function Get-PowerBeardShowCache{
         Also accepts pipeline input from Get-PowerBeardTVDBID
 
     .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Get-PowerBeardShowInfo -tvdbid 75897
-         
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
+ $ServerConnectionString | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowCache
 
-        In this example we get the show info for a show with the tvdbid of 75897
+Banner     Poster
+------     ------
+True       True
 
-    .EXAMPLE
-        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab3a1537af30c8d65765081a9fa148ff | Get-PowerBeardTvdbID -ShowName "South Park" -PassThru | Get-PowerBeardShowInfo
-        
-        
-        air_by_date     : 0
-        airs            : Wednesday 10:00 PM
-        cache           : @{banner=1; poster=1}
-        flatten_folders : 0
-        genre           : {Animation, Comedy}
-        language        : en
-        location        : T:\Media\TV Shows\South Park
-        network         : Comedy Central
-        next_ep_airdate : 2014-10-08
-        paused          : 0
-        quality         : HD720p
-        quality_details : @{archive=System.Object[]; initial=System.Object[]}
-        season_list     : {18, 17, 16, 15...}
-        show_name       : South Park
-        status          : Continuing
-        tvrage_id       : 5266
-        tvrage_name     : South Park
-        tvdbid          : 75897
-        result          : success
 
-        In this example we get the TVDBID of the show, South Park, and use the Passthru switch to pass the
-        ServerConnectionString and the TVDBID through to the Get-PowerBeardShowInfo function.
 
 
     .OUTPUTS
@@ -377,3 +333,4 @@ Function Get-PowerBeardShowCache{
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
+
