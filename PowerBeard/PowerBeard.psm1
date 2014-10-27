@@ -701,10 +701,14 @@ Episode Name                   Quality                Airdate                   
                         #Loop through each episode
                         $EpisodeNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
                         foreach($EpisodeNo in $EpisodeNos.Name){
+                        $AirDateStr = ($RawData.$($EpisodeNo)).Airdate
+                        $AirDateObj = [DateTime]::ParseExact($AirDateStr, "yyyy-MM-dd", $null)
+                        $AirDateObj = [DateTime]::SpecifyKind($AirDateObj, "Utc")
+
                             $SeasonTable = New-Object psobject -Property @{
                                 Season  = [int]$Season
                                 Episode = [int]$EpisodeNo
-                                Airdate = ($RawData.$($EpisodeNo)).Airdate
+                                Airdate = $AirDateObj
                                 Name    = ($RawData.$($EpisodeNo)).Name
                                 Quality = ($RawData.$($EpisodeNo)).Quality
                                 Status  = ($RawData.$($EpisodeNo)).Status
@@ -722,10 +726,13 @@ Episode Name                   Quality                Airdate                   
                         #Loop through each episode in each season here
                         $EpisodeNos = Get-Member -InputObject ($PreprocessInfo.data).$($SeasonNo) -MemberType NoteProperty
                         foreach($EpisodeNo in $EpisodeNos.Name){
+                        $AirDateStr = ($RawData.$($EpisodeNo)).Airdate
+                        $AirDateObj = [DateTime]::ParseExact($AirDateStr, "yyyy-MM-dd", $null)
+                        $AirDateObj = [DateTime]::SpecifyKind($AirDateObj, "Utc")
                             $SeasonTable = New-Object psobject -Property @{
                                 Season  = [int]$SeasonNo
                                 Episode = [int]$EpisodeNo
-                                Airdate = ($SeasonMicro.$($EpisodeNo)).Airdate
+                                Airdate = $AirDateObj
                                 Name    = ($SeasonMicro.$($EpisodeNo)).Name
                                 Quality = ($SeasonMicro.$($EpisodeNo)).Quality
                                 Status  = ($SeasonMicro.$($EpisodeNo)).Status
