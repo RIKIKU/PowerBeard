@@ -1160,3 +1160,70 @@ data                                           message                          
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
         }
 }
+
+Function Get-Schedule{
+    <#
+    .SYNOPSIS
+        Query the SickBeard scheduler.
+
+        
+    .DESCRIPTION
+        This function queries the SickBeard scheduler. It returns an array of boolean, DateTime and String objects.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+
+    .EXAMPLE
+       $ServerConnectionString | Get-PowerBeardSchedule
+
+
+next_search        : 0:23:01
+backlog_is_running : False
+next_backlog       : 8/12/2014
+search_is_running  : False
+backlog_is_paused  : False
+last_backlog       : 17/11/2014
+
+        
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+        }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.checkscheduler"
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        
+        #send request to server and retrieve output
+        if($PreprocessInfo.result -eq "success"){
+            $last_backlog = $PreprocessInfo.data.last_backlog
+            $next_backlog = $PreprocessInfo.data.next_backlog
+            $Output = New-Object psobject -Property @{ 
+                    backlog_is_paused = [System.Convert]::ToBoolean($PreprocessInfo.data.backlog_is_paused)
+                    backlog_is_running = [System.Convert]::ToBoolean($PreprocessInfo.data.backlog_is_running)
+                    last_backlog = [DateTime]::ParseExact($last_backlog, "yyyy-MM-dd", $null)
+                    next_backlog = [DateTime]::ParseExact($next_backlog, "yyyy-MM-dd", $null)
+                    next_search = $PreprocessInfo.data.next_search
+                    search_is_running = [System.Convert]::ToBoolean($PreprocessInfo.data.search_is_running)
+                    }
+                    Write-Output $Output
+            }
+        else{
+            Write-Output $PreprocessInfo
+            }
+    }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+    }
+
+}
