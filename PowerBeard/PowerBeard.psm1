@@ -1227,3 +1227,52 @@ last_backlog       : 17/11/2014
     }
 
 }
+
+Function Set-BacklogStatus{
+    <#
+    .SYNOPSIS
+        Used pause or unpause the backlog.
+
+        
+    .DESCRIPTION
+        By default this function unpauses the backlog. However, if the -Pause switch is specified, it will pause the backlog.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+    
+    .PARAMETER Pause
+        Use this parameter to pause the backlog.
+
+    .EXAMPLE
+        $ServerConnectionString | Set-PowerBeardBacklogStatus
+
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+                                               Backlog unpaused                              success
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString,
+        [Parameter(Mandatory=$False)][Switch]$Pause
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+          }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.pausebacklog"
+        if($Pause){
+            $APICMD += "&pause=1"
+            }
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        Write-Output $PreprocessInfo
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
