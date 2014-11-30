@@ -1,4 +1,4 @@
-﻿Function New-PowerBeardConnection {
+﻿Function New-Connection {
     <#
     .SYNOPSIS
         Generates the ServerConnectionString which is required for many other PowerBeard Functions
@@ -119,7 +119,7 @@
         }
 }
 
-Function New-PowerBeardCommand {
+Function New-Command {
     <#
     .SYNOPSIS
         Allows for use of custom API commands and API commands not covered by the PowerBeard Module.
@@ -213,7 +213,7 @@ data                                           message                          
         }
 }
 
-Function Get-PowerBeardShowInfo{
+Function Get-ShowInfo{
     <#
     .SYNOPSIS
         used to return information about a show.
@@ -327,7 +327,7 @@ Function Get-PowerBeardShowInfo{
         }
 }
 
-Function Get-PowerBeardShows{
+Function Get-Shows{
     <#
     .SYNOPSIS
         Returns all shows currently added to your SickBeard server.
@@ -460,7 +460,7 @@ In this example only the paused shows are returned.
         }
 }
 
-Function Get-PowerBeardTvdbID{
+Function Get-TvdbID{
     <#
     .SYNOPSIS
         When a show name is entered the TVDBID of that show is returned.
@@ -537,7 +537,7 @@ Function Get-PowerBeardTvdbID{
 
 }
 
-Function Get-PowerBeardShowStats{
+Function Get-ShowStats{
     <#
     .SYNOPSIS
         used to return information about a show.
@@ -639,7 +639,7 @@ Function Get-PowerBeardShowStats{
         }
 }
 
-Function Get-PowerBeardShowSeasons{
+Function Get-ShowSeasons{
     <#
     .SYNOPSIS
         used to return a list of all seasons and episodes.
@@ -747,7 +747,7 @@ Episode Name                   Quality                Airdate                   
         }
 }
 
-Function Get-PowerBeardShowQuality{
+Function Get-ShowQuality{
     <#
     .SYNOPSIS
         used to return quality settings for a show.
@@ -811,7 +811,7 @@ In this example, Get-PowerBeardTvdbID is piped into Get-PowerBeardShowQuality
         }
 }
 
-Function Get-PowerBeardShowCache{
+Function Get-ShowCache{
 
     <#
     .SYNOPSIS
@@ -873,7 +873,7 @@ True       True
         }
 }
 
-Function Search-PowerBeardTvdb{
+Function Search-Tvdb{
     <#
     .SYNOPSIS
         Allows a user to search for a ShowName or TVDBID in TVDB
@@ -985,7 +985,7 @@ Function Search-PowerBeardTvdb{
 
 }
 
-Function Remove-PowerBeardShow{
+Function Remove-Show{
     <#
     .SYNOPSIS
         Used to delete a show from SickBeard.
@@ -1069,6 +1069,206 @@ a loop to delete each show in the list.
             #filter the output based on result message.
             Write-Output $PreprocessInfo
             }
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
+
+Function Restart-Service{
+    <#
+    .SYNOPSIS
+        Used to restart SickBeard.
+
+        
+    .DESCRIPTION
+        This funciton restarts the sickbeard server.  
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Restart-PowerBeardService
+
+data                 message                          result                                       
+----                 -------                          ------                                       
+                     SickBeard is restarting...       success
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+          }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.restart"
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        Write-Output $PreprocessInfo
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
+
+Function Stop-Service{
+    <#
+    .SYNOPSIS
+        Used to shutdown SickBeard.
+
+        
+    .DESCRIPTION
+        This funciton restarts the sickbeard server.  
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+    .EXAMPLE
+        New-PowerBeardConnection -Server MySickBeardServer -Port 8081 -ApiKey ab31537af30c8d65765081a9fa148ff | Restart-PowerBeardService
+
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+                                               SickBeard is shutting down...                 success 
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+          }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.shutdown"
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        Write-Output $PreprocessInfo
+        }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+        }
+}
+
+Function Get-Schedule{
+    <#
+    .SYNOPSIS
+        Query the SickBeard scheduler.
+
+        
+    .DESCRIPTION
+        This function queries the SickBeard scheduler. It returns an array of boolean, DateTime and String objects.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+
+
+    .EXAMPLE
+       $ServerConnectionString | Get-PowerBeardSchedule
+
+
+next_search        : 0:23:01
+backlog_is_running : False
+next_backlog       : 8/12/2014
+search_is_running  : False
+backlog_is_paused  : False
+last_backlog       : 17/11/2014
+
+        
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+        }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.checkscheduler"
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        
+        #send request to server and retrieve output
+        if($PreprocessInfo.result -eq "success"){
+            $last_backlog = $PreprocessInfo.data.last_backlog
+            $next_backlog = $PreprocessInfo.data.next_backlog
+            $Output = New-Object psobject -Property @{ 
+                    backlog_is_paused = [System.Convert]::ToBoolean($PreprocessInfo.data.backlog_is_paused)
+                    backlog_is_running = [System.Convert]::ToBoolean($PreprocessInfo.data.backlog_is_running)
+                    last_backlog = [DateTime]::ParseExact($last_backlog, "yyyy-MM-dd", $null)
+                    next_backlog = [DateTime]::ParseExact($next_backlog, "yyyy-MM-dd", $null)
+                    next_search = $PreprocessInfo.data.next_search
+                    search_is_running = [System.Convert]::ToBoolean($PreprocessInfo.data.search_is_running)
+                    }
+                    Write-Output $Output
+            }
+        else{
+            Write-Output $PreprocessInfo
+            }
+    }
+    End{
+        Get-Variable | 
+        where {$sysvars -notcontains $_.Name} |
+        foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
+    }
+
+}
+
+Function Set-BacklogStatus{
+    <#
+    .SYNOPSIS
+        Used pause or unpause the backlog.
+
+        
+    .DESCRIPTION
+        By default this function unpauses the backlog. However, if the -Pause switch is specified, it will pause the backlog.
+
+    .PARAMETER  ServerConnectionString
+        This parameter accepts pipeline input from New-PowerBeardConnection. A correctly formated URI or variable may
+        be used here instead.
+    
+    .PARAMETER Pause
+        Use this parameter to pause the backlog.
+
+    .EXAMPLE
+        $ServerConnectionString | Set-PowerBeardBacklogStatus
+
+data                                           message                                       result                                       
+----                                           -------                                       ------                                       
+                                               Backlog unpaused                              success
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True)][string[]]$ServerConnectionString,
+        [Parameter(Mandatory=$False)][Switch]$Pause
+            )
+    Begin{
+        $sysvars = Get-Variable |
+        select -ExpandProperty Name
+        $sysvars += 'sysvars'
+          }
+    Process{
+        #compile the appropriate URL here.
+        [string]$APICMD = "sb.pausebacklog"
+        if($Pause){
+            $APICMD += "&pause=1"
+            }
+        $PreprocessInfo = $ServerConnectionString | New-PowerBeardCommand -ApiCMD $APICMD
+        Write-Output $PreprocessInfo
         }
     End{
         Get-Variable | 
