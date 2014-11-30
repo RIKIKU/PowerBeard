@@ -1,8 +1,26 @@
 # README #
+### Copying ###
+This file is part of PowerBeard.
+
+PowerBeard is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+PowerBeard is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with PowerBeard.  If not, see <http://www.gnu.org/licenses/>.
 
 ### What is PowerBeard? ###
 PowerBeard is a PowerShell module that helps a user interact with the SickBeard API
 in a way that is familiar to PowerShell users.
+PowerBeard and its author (Kyle Smith) are in no way associated with SickBeard.
+This module has been written without the prior knowledge or the support of the SickBeard team. 
+Do not attempt to contact the SickBeard team in relation to this module. 
 
 ### How do I get set up? ###
 
