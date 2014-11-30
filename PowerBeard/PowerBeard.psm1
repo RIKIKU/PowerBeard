@@ -1,4 +1,21 @@
-﻿Function New-Connection {
+﻿<#
+    This file is part of PowerBeard.
+
+    PowerBeard is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PowerBeard is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with PowerBeard.  If not, see <http://www.gnu.org/licenses/>.
+#>
+
+Function New-Connection {
     <#
     .SYNOPSIS
         Generates the ServerConnectionString which is required for many other PowerBeard Functions
@@ -197,14 +214,14 @@ data                                           message                          
         $sysvars += 'sysvars'
         }
     Process{
-        [string]$url = "$($ServerConnectionString)?cmd=$ApiCMD"
+        [string]$Url = "$($ServerConnectionString)?cmd=$ApiCMD"
 
-        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
-        [net.httpWebResponse] $response = $request.getResponse()
-        $responseStream = $response.getResponseStream()
-        $sr = new-object IO.StreamReader($responseStream)
-        $result = $sr.ReadToEnd()
-        ConvertFrom-Json $result
+        [net.httpWebRequest] $Req = [net.webRequest]::create($Url)
+        [net.httpWebResponse] $Reply = $Req.getResponse()
+        $ResponseStream = $Reply.getResponseStream()
+        $StreamReader = new-object IO.StreamReader($ResponseStream)
+        $Output = $StreamReader.ReadToEnd()
+        ConvertFrom-Json $Output
         }
     End{
         Get-Variable | 
