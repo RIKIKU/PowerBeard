@@ -331,10 +331,10 @@ Function Get-ShowInfo{
         #filter the output based on result message.
             if($PreprocessInfo.result -eq "success"){
                 $showinfo = $PreprocessInfo.data
-                Add-Member -InputObject $showinfo NoteProperty tvdbid $tvdbid -PassThru | Add-Member NoteProperty result success -PassThru
+                Add-Member -InputObject $showinfo NoteProperty tvdbid $tvdbid[0] -PassThru | Add-Member NoteProperty result success -PassThru
                 }
             else{
-                Add-Member -InputObject $PreprocessInfo NoteProperty tvdbid $tvdbid -PassThru | select -Property message, result, tvdbid
+                Add-Member -InputObject $PreprocessInfo NoteProperty tvdbid $tvdbid[0] -PassThru | select -Property message, result, tvdbid
                 }
             }
     End{
