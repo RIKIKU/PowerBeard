@@ -207,7 +207,15 @@ data                                           message                          
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$True,ValueFromPipelinebyPropertyName=$True,ValueFromPipeline=$True)][string[]]$ServerConnectionString, [Parameter(Mandatory=$True)][string]$ApiCMD)
+        [Parameter(
+            Mandatory=$True,
+            ValueFromPipelinebyPropertyName=$True,
+            ValueFromPipeline=$True)]
+        [string[]]$ServerConnectionString, 
+        
+        [Parameter(Mandatory=$True)]
+        [string]$ApiCMD)
+
     Begin{
         $sysvars = Get-Variable |
         select -ExpandProperty Name
@@ -216,8 +224,31 @@ data                                           message                          
     Process{
         [string]$Url = "$($ServerConnectionString)?cmd=$ApiCMD"
 
-        [net.httpWebRequest] $Req = [net.webRequest]::create($Url)
-        [net.httpWebResponse] $Reply = $Req.getResponse()
+        try
+        {
+            [net.httpWebRequest] $Req = [net.webRequest]::create($Url)
+        }
+        
+        catch [System.UriFormatException]
+        {
+            throw "URL: $($URL) `n$_.Exception"
+        }
+
+        catch
+        {
+            throw $_.Exception
+        }
+
+        try
+        {
+            [net.httpWebResponse] $Reply = $Req.getResponse()
+        }
+
+        catch
+        {
+            throw $_.Exception
+        }
+        
         $ResponseStream = $Reply.getResponseStream()
         $StreamReader = new-object IO.StreamReader($ResponseStream)
         $Output = $StreamReader.ReadToEnd()
