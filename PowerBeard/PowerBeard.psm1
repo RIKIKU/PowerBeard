@@ -719,6 +719,7 @@ Episode Name                   Quality                Airdate                   
                         $EpisodeNos = Get-Member -InputObject $PreprocessInfo.data -MemberType NoteProperty
                         foreach($EpisodeNo in $EpisodeNos.Name){
                             $SeasonTable = New-Object psobject -Property @{
+                                TVDBID  = [int]$tvdbid
                                 Season  = [int]$Season
                                 Episode = [int]$EpisodeNo
                                 Airdate = ($RawData.$($EpisodeNo)).Airdate
