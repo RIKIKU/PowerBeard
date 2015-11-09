@@ -101,39 +101,38 @@ Function New-Connection {
         select -ExpandProperty Name
         $sysvars += 'sysvars'
         }
-    Process{
-        if($ssl){
+    Process
+    {
+        if($ssl)
+        {
             [string]$urlbase = "https://$server`:$Port/api/$ApiKey/"
             # ignore certificate errors
             [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
             [System.Net.ServicePointManager]::Expect100Continue = {$true}
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::ssl3
-            }
-        else{
+        }
+        else
+        {
             [string]$urlbase = "http://$server`:$Port/api/$ApiKey/"
-            }
-        if($TestConneciton){
-            [string]$url += $urlbase
-            [string]$url += "?cmd=sb"
+        }
+        if($TestConneciton)
+        {
 
-        [net.httpWebRequest] $request  = [net.webRequest]::create($url)
-        [net.httpWebResponse] $response = $request.getResponse()
-        $responseStream = $response.getResponseStream()
-        $sr = new-object IO.StreamReader($responseStream)
-        $result = $sr.ReadToEnd()
-        ConvertFrom-Json $result | select -Property message, result | fl
-            }
+            New-PowerBeardCommand -ServerConnectionString $urlbase -ApiCMD "sb" | select -Property message, result | fl
+        }
         #need to output the $urlbase and be able to pipe it into another function.
-        else{
+        else
+        {
             $CSS = new-object psobject -Property @{ ServerConnectionString="$urlbase"}
             Write-Output $CSS
-            }
         }
-    End{
+    }
+    End
+    {
         Get-Variable | 
         where {$sysvars -notcontains $_.Name} |
         foreach {Remove-Variable $_ -ErrorAction SilentlyContinue}
-        }
+    }
 }
 
 Function New-Command {
